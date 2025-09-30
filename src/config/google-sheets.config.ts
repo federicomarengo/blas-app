@@ -11,7 +11,8 @@ export const GOOGLE_SHEETS_CONFIG = {
   SHEET_ID: '1QqkNXEo7ap8FGlUx5YFLysr3LSF6nzLCpwZxTEF072I',
   
   // Name of the sheet tab (worksheet) in your Google Sheets
-  SHEET_NAME: 'Progress',
+  // If you haven't renamed the sheet tab, it's usually 'Sheet1' by default
+  SHEET_NAME: 'Sheet1',
   
   // Column structure in your Google Sheets:
   // A: Month (string) - e.g., "January 2024"

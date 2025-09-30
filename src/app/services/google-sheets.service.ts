@@ -26,6 +26,10 @@ export class GoogleSheetsService {
   // Get current progress from Google Sheets for specific month
   getProgress(month: string): Observable<any> {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.SHEET_ID}/values/${this.SHEET_NAME}!A:B?key=${this.API_KEY}`;
+    console.log('🔍 Google Sheets API URL:', url);
+    console.log('📊 Looking for month:', month);
+    console.log('📋 Sheet ID:', this.SHEET_ID);
+    console.log('📄 Sheet Name:', this.SHEET_NAME);
     return this.http.get(url);
   }
 

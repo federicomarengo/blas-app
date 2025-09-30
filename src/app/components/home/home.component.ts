@@ -38,7 +38,7 @@ export class HomeComponent implements OnInit {
   }
 
   getCurrentMonthName(): string {
-    return new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    return new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });
   }
 
   getProgressBarClass(): string {
@@ -97,25 +97,33 @@ export class HomeComponent implements OnInit {
   loadProgressFromSheets(): void {
     this.isLoading = true;
     const currentMonth = this.getCurrentMonthName();
+    console.log('🔄 Loading progress from Google Sheets for month:', currentMonth);
     
     this.googleSheetsService.getProgress(currentMonth).subscribe({
       next: (response: any) => {
+        console.log('✅ Google Sheets response:', response);
         if (response.values && response.values.length > 0) {
+          console.log('📊 Found data rows:', response.values);
           // Search for current month in the data
           const rows = response.values;
           for (let i = 0; i < rows.length; i++) {
             const [month, progress] = rows[i];
+            console.log(`🔍 Checking row ${i}: month="${month}", progress="${progress}"`);
             if (month === currentMonth) {
+              console.log('🎯 Found matching month! Setting progress to:', progress);
               this.progressValue = parseInt(progress) || 0;
               this.isConnected = true;
               break;
             }
           }
+        } else {
+          console.log('⚠️ No data found in Google Sheets');
         }
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading from Google Sheets:', error);
+        console.error('❌ Error loading from Google Sheets:', error);
+        console.error('Error details:', error);
         this.isConnected = false;
         this.isLoading = false;
       }
