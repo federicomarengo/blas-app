@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { GoogleSheetsService, ProgressData } from '../../services/google-sheets.service';
 
 @Component({
   selector: 'app-home',
@@ -35,6 +36,11 @@ import { RouterModule } from '@angular/router';
       <!-- Progress Bar Section -->
       <div class="progress-section">
         <h2 class="progress-title">Objetivo grupal</h2>
+        <div class="connection-status">
+          <span *ngIf="isLoading" class="status-loading">🔄 Cargando desde Google Sheets...</span>
+          <span *ngIf="isConnected && !isLoading" class="status-connected">✅ Conectado a Google Sheets</span>
+          <span *ngIf="!isConnected && !isLoading" class="status-disconnected">❌ Solo almacenamiento local</span>
+        </div>
         <div class="progress-container">
           <div class="progress-bar-wrapper">
             <div class="progress-bar">
@@ -219,9 +225,29 @@ import { RouterModule } from '@angular/router';
     .progress-title {
       font-size: 2.2rem;
       color: #000000;
-      margin-bottom: 30px;
+      margin-bottom: 15px;
       font-weight: 700;
       text-align: center;
+    }
+
+    .connection-status {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .status-loading {
+      color: #ffa500;
+      font-weight: 600;
+    }
+
+    .status-connected {
+      color: #28a745;
+      font-weight: 600;
+    }
+
+    .status-disconnected {
+      color: #dc3545;
+      font-weight: 600;
     }
 
     .progress-container {
@@ -424,9 +450,15 @@ import { RouterModule } from '@angular/router';
 export class HomeComponent implements OnInit {
   progressValue: number = 0;
   remainingDays: number = 0;
+  isConnected: boolean = false;
+  isLoading: boolean = false;
+
+  constructor(private googleSheetsService: GoogleSheetsService) {}
 
   ngOnInit(): void {
     this.calculateRemainingDays();
+    this.loadProgressFromStorage();
+    this.loadProgressFromSheets();
   }
 
   calculateRemainingDays(): void {
@@ -437,6 +469,8 @@ export class HomeComponent implements OnInit {
 
   onProgressChange(value: number): void {
     this.progressValue = Math.max(0, Math.min(100, value));
+    this.saveProgressToStorage();
+    this.saveProgressToSheets();
   }
 
   getCurrentMonthName(): string {
@@ -470,6 +504,74 @@ export class HomeComponent implements OnInit {
       return 'Felicitaciones!!!';
     }
     return '';
+  }
+
+  saveProgressToStorage(): void {
+    const progressData = {
+      value: this.progressValue,
+      timestamp: new Date().toISOString(),
+      month: this.getCurrentMonthName()
+    };
+    localStorage.setItem('blas-progress', JSON.stringify(progressData));
+  }
+
+  loadProgressFromStorage(): void {
+    const savedProgress = localStorage.getItem('blas-progress');
+    if (savedProgress) {
+      try {
+        const progressData = JSON.parse(savedProgress);
+        // Only load if it's from the current month
+        if (progressData.month === this.getCurrentMonthName()) {
+          this.progressValue = progressData.value;
+        }
+      } catch (error) {
+        console.error('Error loading progress from storage:', error);
+      }
+    }
+  }
+
+  loadProgressFromSheets(): void {
+    this.isLoading = true;
+    const currentMonth = this.getCurrentMonthName();
+    
+    this.googleSheetsService.getProgress(currentMonth).subscribe({
+      next: (response: any) => {
+        if (response.values && response.values.length > 0) {
+          // Search for current month in the data
+          const rows = response.values;
+          for (let i = 0; i < rows.length; i++) {
+            const [month, progress] = rows[i];
+            if (month === currentMonth) {
+              this.progressValue = parseInt(progress) || 0;
+              this.isConnected = true;
+              break;
+            }
+          }
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading from Google Sheets:', error);
+        this.isConnected = false;
+        this.isLoading = false;
+      }
+    });
+  }
+
+  saveProgressToSheets(): void {
+    this.googleSheetsService.updateProgress(
+      this.progressValue, 
+      this.getCurrentMonthName()
+    ).subscribe({
+      next: (response) => {
+        console.log('Progress saved to Google Sheets:', response);
+        this.isConnected = true;
+      },
+      error: (error) => {
+        console.error('Error saving to Google Sheets:', error);
+        this.isConnected = false;
+      }
+    });
   }
 
 }
