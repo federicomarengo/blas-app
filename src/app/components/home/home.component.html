@@ -16,7 +16,7 @@
   <!-- Countdown Banner -->
   <div class="countdown-banner">
     <div class="countdown-content">
-      <span class="countdown-label">Tiempo restante en {{ getCurrentMonthName() }}:</span>
+      <span class="countdown-label">Tiempo restante para cumplir el objetivo:</span>
       <div class="countdown-display">
         <div class="countdown-item">
           <span class="countdown-number">{{ countdownDays }}</span>
@@ -50,7 +50,18 @@
         </div>
       </div>
       <div class="progress-controls">
+        <button (click)="refreshObjective()" [disabled]="isLoading" class="refresh-btn">
+          {{ isLoading ? '🔄 Cargando...' : '🔄 Actualizar Objetivo' }}
+        </button>
         <div *ngIf="getProgressText()" class="celebration-text">{{ getProgressText() }}</div>
+      </div>
+      
+      <!-- Message from Google Sheets -->
+      <div *ngIf="messageFromSheet" class="message-section">
+        <div class="message-content">
+          <h3 class="message-title">🐕 Blas dice:</h3>
+          <p class="message-text">{{ messageFromSheet }}</p>
+        </div>
       </div>
     </div>
   </div>

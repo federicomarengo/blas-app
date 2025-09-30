@@ -224,12 +224,34 @@
     background: linear-gradient(90deg, #dc3545, #c82333);
   }
 
+  &.progress-red-orange {
+    background: linear-gradient(90deg, #e74c3c, #f39c12);
+  }
+
   &.progress-orange {
     background: linear-gradient(90deg, #fd7e14, #e55a00);
   }
 
+  &.progress-orange-yellow {
+    background: linear-gradient(90deg, #f39c12, #f1c40f);
+  }
+
+  &.progress-yellow {
+    background: linear-gradient(90deg, #f1c40f, #e6ac00);
+  }
+
+  &.progress-yellow-green {
+    background: linear-gradient(90deg, #f1c40f, #27ae60);
+  }
+
   &.progress-green {
     background: linear-gradient(90deg, #28a745, #1e7e34);
+  }
+
+  &.progress-celebration {
+    background: linear-gradient(90deg, #e74c3c, #f39c12, #f1c40f, #27ae60, #3498db, #9b59b6);
+    background-size: 200% 100%;
+    animation: celebration-gradient 2s ease-in-out infinite;
   }
 
   &::before {
@@ -267,6 +289,65 @@
   gap: 15px;
   width: 100%;
   max-width: 400px;
+}
+
+.refresh-btn {
+  background: #000000;
+  color: #ffffff;
+  border: 2px solid #000000;
+  padding: 12px 25px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  min-width: 200px;
+  
+  &:hover:not(:disabled) {
+    background: #ffffff;
+    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+  
+  &:disabled {
+    background: #666666;
+    color: #ffffff;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.message-section {
+  margin-top: 30px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.message-content {
+  background: #f8f9fa;
+  border: 2px solid #000000;
+  border-radius: 10px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.message-title {
+  font-size: 1.4rem;
+  color: #000000;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.message-text {
+  font-size: 1.1rem;
+  color: #000000;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 500;
 }
 
 .progress-label {
@@ -335,6 +416,18 @@
   }
   100% {
     transform: scale(1.1);
+  }
+}
+
+@keyframes celebration-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 

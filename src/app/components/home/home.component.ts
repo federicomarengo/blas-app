@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   remainingDays: number = 0;
   countdownDays: number = 0;
   countdownHours: number = 0;
+  messageFromSheet: string = '';
   isConnected: boolean = false;
   isLoading: boolean = false;
   private countdownInterval: any;
@@ -77,22 +78,48 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   getProgressBarClass(): string {
-    if (this.progressValue <= 30) {
+    if (this.progressValue <= 10) {
       return 'progress-red';
-    } else if (this.progressValue <= 70) {
+    } else if (this.progressValue <= 25) {
+      return 'progress-red-orange';
+    } else if (this.progressValue <= 40) {
       return 'progress-orange';
-    } else {
+    } else if (this.progressValue <= 55) {
+      return 'progress-orange-yellow';
+    } else if (this.progressValue <= 70) {
+      return 'progress-yellow';
+    } else if (this.progressValue <= 85) {
+      return 'progress-yellow-green';
+    } else if (this.progressValue < 100) {
       return 'progress-green';
+    } else {
+      return 'progress-celebration';
     }
   }
 
   getProgressEmoji(): string {
-    if (this.progressValue <= 30) {
+    if (this.progressValue <= 5) {
+      return '😭';
+    } else if (this.progressValue <= 10) {
       return '😢';
-    } else if (this.progressValue <= 70) {
+    } else if (this.progressValue <= 20) {
+      return '😔';
+    } else if (this.progressValue <= 30) {
+      return '😕';
+    } else if (this.progressValue <= 40) {
       return '😐';
-    } else if (this.progressValue < 100) {
+    } else if (this.progressValue <= 50) {
+      return '🙂';
+    } else if (this.progressValue <= 60) {
       return '😊';
+    } else if (this.progressValue <= 70) {
+      return '😄';
+    } else if (this.progressValue <= 80) {
+      return '😁';
+    } else if (this.progressValue <= 90) {
+      return '🤩';
+    } else if (this.progressValue < 100) {
+      return '🥳';
     } else {
       return '🎉';
     }
@@ -142,11 +169,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           // Search for current month in the data
           const rows = response.values;
           for (let i = 0; i < rows.length; i++) {
-            const [month, progress] = rows[i];
-            console.log(`🔍 Checking row ${i}: month="${month}", progress="${progress}"`);
+            const [month, progress, message] = rows[i];
+            console.log(`🔍 Checking row ${i}: month="${month}", progress="${progress}", message="${message}"`);
             if (month === currentMonth) {
               console.log('🎯 Found matching month! Setting progress to:', progress);
               this.progressValue = parseInt(progress) || 0;
+              this.messageFromSheet = message || '';
               this.isConnected = true;
               break;
             }
@@ -179,6 +207,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isConnected = false;
       }
     });
+  }
+
+  refreshObjective(): void {
+    this.loadProgressFromSheets();
   }
 
 }
