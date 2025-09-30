@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { API_CONFIG } from '../../config/api.config';
 
 export interface SalesData {
@@ -23,8 +23,57 @@ export interface ApiResponse {
 export class FudoApiService {
   private baseUrl = API_CONFIG.baseUrl;
   private apiKey = API_CONFIG.apiKey;
+  private apiSecret = API_CONFIG.apiSecret;
+  private authToken: string | null = null;
+  private tokenExpiry: number | null = null;
 
   constructor(private http: HttpClient) { }
+
+  // Authenticate and get token from Fudo API
+  private authenticate(): Observable<string> {
+    if (this.authToken && this.tokenExpiry && Date.now() < this.tokenExpiry) {
+      return new Observable(observer => observer.next(this.authToken!));
+    }
+
+    const authUrl = 'https://auth.staging.fu.do/api'; // Using staging for testing
+    const authData = {
+      apiKey: this.apiKey,
+      apiSecret: this.apiSecret
+    };
+
+    return this.http.post<any>(authUrl, authData, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      })
+    }).pipe(
+      map(response => {
+        if (response.token) {
+          this.authToken = response.token;
+          // Set token expiry (assuming 1 hour, adjust based on API response)
+          this.tokenExpiry = Date.now() + (response.expires_in || 3600) * 1000;
+          return this.authToken;
+        } else {
+          throw new Error('No token received from authentication');
+        }
+      }),
+      catchError(error => {
+        console.error('Authentication failed:', error);
+        throw new Error(`Authentication failed: ${error.message}`);
+      })
+    );
+  }
+
+  // Get headers with proper authentication token
+  private getAuthenticatedHeaders(): Observable<HttpHeaders> {
+    return this.authenticate().pipe(
+      map(token => new HttpHeaders({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }))
+    );
+  }
 
   private getHeaders(): HttpHeaders {
     // Try different authentication methods
@@ -131,26 +180,26 @@ export class FudoApiService {
     );
   }
 
-  // Test API connection with different auth methods
+  // Test API connection with proper Fudo authentication
   testConnection(): Observable<any> {
     const url = `${this.baseUrl}${API_CONFIG.endpoints.health}`;
     
-    // Try X-API-Key method first
-    return this.http.get<any>(url, {
-      headers: this.getHeaders()
-    }).pipe(
-      catchError(() => {
-        // If X-API-Key fails, try Bearer token
-        return this.http.get<any>(url, {
-          headers: this.getBearerHeaders()
-        }).pipe(
-          catchError(() => {
-            // If Bearer fails, try Basic Auth
-            return this.http.get<any>(url, {
-              headers: this.getBasicAuthHeaders()
-            });
-          })
-        );
+    return this.getAuthenticatedHeaders().pipe(
+      switchMap(headers => {
+        return this.http.get<any>(url, { headers });
+      }),
+      map(response => {
+        return {
+          success: true,
+          message: 'Successfully connected to Fudo API with proper authentication',
+          data: response,
+          timestamp: new Date().toISOString(),
+          note: 'Using proper Fudo API authentication flow (token-based)'
+        };
+      }),
+      catchError(error => {
+        console.error('Fudo API connection failed:', error);
+        return throwError(() => new Error(`Fudo API connection failed: ${error.message}`));
       })
     );
   }
