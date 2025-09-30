@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -11,24 +11,56 @@ import { GoogleSheetsService, ProgressData } from '../../services/google-sheets.
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   progressValue: number = 0;
   remainingDays: number = 0;
+  countdownDays: number = 0;
+  countdownHours: number = 0;
   isConnected: boolean = false;
   isLoading: boolean = false;
+  private countdownInterval: any;
 
   constructor(private googleSheetsService: GoogleSheetsService) {}
 
   ngOnInit(): void {
     this.calculateRemainingDays();
+    this.updateCountdown();
+    this.startCountdownTimer();
     this.loadProgressFromStorage();
     this.loadProgressFromSheets();
+  }
+
+  ngOnDestroy(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
   }
 
   calculateRemainingDays(): void {
     const today = new Date();
     const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     this.remainingDays = lastDayOfMonth.getDate() - today.getDate();
+  }
+
+  updateCountdown(): void {
+    const now = new Date();
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    const timeDiff = endOfMonth.getTime() - now.getTime();
+    
+    if (timeDiff > 0) {
+      this.countdownDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      this.countdownHours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    } else {
+      this.countdownDays = 0;
+      this.countdownHours = 0;
+    }
+  }
+
+  startCountdownTimer(): void {
+    // Update every hour (3600000 milliseconds)
+    this.countdownInterval = setInterval(() => {
+      this.updateCountdown();
+    }, 3600000);
   }
 
   onProgressChange(value: number): void {

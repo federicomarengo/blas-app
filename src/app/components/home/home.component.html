@@ -10,21 +10,30 @@
     </div>
     <div class="nav-links">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-      <a routerLink="/support" routerLinkActive="active">Support</a>
     </div>
   </nav>
 
-  <!-- Remaining Days Banner -->
-  <div class="remaining-days-banner">
-    <div class="remaining-days-content">
-      <span class="remaining-days-label">Días restantes en {{ getCurrentMonthName() }}:</span>
-      <span class="remaining-days-count">{{ remainingDays }}</span>
+  <!-- Countdown Banner -->
+  <div class="countdown-banner">
+    <div class="countdown-content">
+      <span class="countdown-label">Tiempo restante en {{ getCurrentMonthName() }}:</span>
+      <div class="countdown-display">
+        <div class="countdown-item">
+          <span class="countdown-number">{{ countdownDays }}</span>
+          <span class="countdown-label-small">días</span>
+        </div>
+        <div class="countdown-separator">:</div>
+        <div class="countdown-item">
+          <span class="countdown-number">{{ countdownHours }}</span>
+          <span class="countdown-label-small">horas</span>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Progress Bar Section -->
   <div class="progress-section">
-    <h2 class="progress-title">Objetivo grupal</h2>
+    <h2 class="progress-title">OBJETIVO GRUPAL</h2>
     <div class="connection-status">
       <span *ngIf="isLoading" class="status-loading">🔄 Cargando desde Google Sheets...</span>
       <span *ngIf="isConnected && !isLoading" class="status-connected">✅ Conectado a Google Sheets</span>
@@ -41,16 +50,6 @@
         </div>
       </div>
       <div class="progress-controls">
-        <label for="progress-input" class="progress-label">Establecer progreso (0-100):</label>
-        <input 
-          id="progress-input"
-          type="number" 
-          [(ngModel)]="progressValue" 
-          (ngModelChange)="onProgressChange($event)"
-          min="0" 
-          max="100" 
-          class="progress-input"
-          placeholder="Ingrese valor de progreso">
         <div *ngIf="getProgressText()" class="celebration-text">{{ getProgressText() }}</div>
       </div>
     </div>

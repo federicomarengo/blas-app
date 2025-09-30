@@ -78,8 +78,8 @@
   border-color: #000000;
 }
 
-// Remaining Days Banner
-.remaining-days-banner {
+// Countdown Banner
+.countdown-banner {
   background: #dc3545;
   color: #ffffff;
   padding: 25px 0;
@@ -92,31 +92,58 @@
   text-align: center;
 }
 
-.remaining-days-content {
+.countdown-content {
   text-align: center;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   gap: 15px;
-  flex-wrap: wrap;
 }
 
-.remaining-days-label {
+.countdown-label {
   font-size: 1.3rem;
   font-weight: 600;
   color: #ffffff;
 }
 
-.remaining-days-count {
-  font-size: 2.5rem;
-  font-weight: bold;
+.countdown-display {
+  display: flex;
+  align-items: center;
+  gap: 20px;
   background: #ffffff;
   color: #000000;
-  padding: 15px 30px;
-  border-radius: 10px;
+  padding: 20px 30px;
+  border-radius: 15px;
   border: 2px solid #ffffff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.countdown-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-width: 80px;
-  text-align: center;
+}
+
+.countdown-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  line-height: 1;
+  animation: pulse 2s infinite;
+}
+
+.countdown-label-small {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.countdown-separator {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #dc3545;
   animation: pulse 2s infinite;
 }
 
