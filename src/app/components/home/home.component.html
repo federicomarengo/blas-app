@@ -1,0 +1,59 @@
+<div class="home-container">
+  <!-- Navigation -->
+  <nav class="navigation">
+    <div class="nav-brand">
+      <div class="logo-container">
+        <div class="logo-image">
+          <img src="assets/images/blas_header.png" alt="Blas Logo" class="header-logo">
+        </div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+      <a routerLink="/support" routerLinkActive="active">Support</a>
+    </div>
+  </nav>
+
+  <!-- Remaining Days Banner -->
+  <div class="remaining-days-banner">
+    <div class="remaining-days-content">
+      <span class="remaining-days-label">Días restantes en {{ getCurrentMonthName() }}:</span>
+      <span class="remaining-days-count">{{ remainingDays }}</span>
+    </div>
+  </div>
+
+  <!-- Progress Bar Section -->
+  <div class="progress-section">
+    <h2 class="progress-title">Objetivo grupal</h2>
+    <div class="connection-status">
+      <span *ngIf="isLoading" class="status-loading">🔄 Cargando desde Google Sheets...</span>
+      <span *ngIf="isConnected && !isLoading" class="status-connected">✅ Conectado a Google Sheets</span>
+      <span *ngIf="!isConnected && !isLoading" class="status-disconnected">❌ Solo almacenamiento local</span>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar">
+          <div class="progress-fill" 
+               [style.width.%]="progressValue"
+               [class]="getProgressBarClass()">
+            <div class="progress-emoji">{{ getProgressEmoji() }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="progress-controls">
+        <label for="progress-input" class="progress-label">Establecer progreso (0-100):</label>
+        <input 
+          id="progress-input"
+          type="number" 
+          [(ngModel)]="progressValue" 
+          (ngModelChange)="onProgressChange($event)"
+          min="0" 
+          max="100" 
+          class="progress-input"
+          placeholder="Ingrese valor de progreso">
+        <div *ngIf="getProgressText()" class="celebration-text">{{ getProgressText() }}</div>
+      </div>
+    </div>
+  </div>
+
+</div>
