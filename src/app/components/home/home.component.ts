@@ -38,7 +38,10 @@ export class HomeComponent implements OnInit {
   }
 
   getCurrentMonthName(): string {
-    return new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+    const date = new Date();
+    const month = date.toLocaleString('es-ES', { month: 'long' });
+    const year = date.getFullYear();
+    return `${month} ${year}`;
   }
 
   getProgressBarClass(): string {
